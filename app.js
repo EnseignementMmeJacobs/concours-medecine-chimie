@@ -22,9 +22,11 @@ const elements = {
   title: document.querySelector("#question-title"),
   themeText: document.querySelector("#question-theme"),
   locatorNumber: document.querySelector("#locator-number"),
+  locator: document.querySelector(".locator"),
+  locatorHelp: document.querySelector("#locator-help"),
   officialTitle: document.querySelector("#official-title"),
-  form: document.querySelector("#official-form"),
   openOfficial: document.querySelector("#open-official"),
+  openAnnual: document.querySelector("#open-annual"),
   archive: document.querySelector("#archive-link"),
   answerButtons: [...document.querySelectorAll("[data-answer]")],
   checkAnswer: document.querySelector("#check-answer"),
@@ -147,9 +149,24 @@ function selectQuestion(id) {
   elements.title.textContent = `Question ${question.number} (${question.year})`;
   elements.themeText.textContent = question.theme;
   elements.locatorNumber.textContent = `Q${question.number}`;
-  elements.officialTitle.textContent = `Formulaire de chimie ${question.year}`;
-  elements.openOfficial.href = question.url;
-  elements.form.src = `${question.url}?embedded=true&hl=fr`;
+  elements.officialTitle.textContent = `Source de chimie ${question.year}`;
+  elements.openAnnual.href = question.url;
+
+  if (question.directUrl) {
+    elements.locator.classList.remove("is-unavailable");
+    elements.openOfficial.href = question.directUrl;
+    elements.openOfficial.textContent = question.sourceKind === "pdf-page"
+      ? "Voir la question dans le PDF ↗"
+      : "Voir la question exacte ↗";
+    elements.locatorHelp.textContent = question.sourceKind === "pdf-page"
+      ? "Le PDF s’ouvre directement à la page de cette question. Reviens ensuite ici pour répondre."
+      : "La question exacte s’ouvre dans un nouvel onglet depuis Google. Reviens ensuite ici pour répondre.";
+  } else {
+    elements.locator.classList.add("is-unavailable");
+    elements.openOfficial.href = question.url;
+    elements.openOfficial.textContent = "Voir le questionnaire annuel ↗";
+    elements.locatorHelp.textContent = "Cette carte n’est plus proposée séparément dans le formulaire public actuel. Le questionnaire annuel reste accessible.";
+  }
 
   elements.answerButtons.forEach((button) => {
     button.classList.remove("is-selected", "is-correct", "is-wrong");
