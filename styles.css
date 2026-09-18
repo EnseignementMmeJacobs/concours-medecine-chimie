@@ -222,7 +222,9 @@ input:focus, select:focus, button:focus-visible, a:focus-visible { outline: 3px 
 .source-card { display: flex; justify-content: space-between; gap: 20px; align-items: center; padding: 16px; background: #f8fafc; border: 1px solid var(--line); border-radius: 13px; }
 .source-card h3 { margin: 2px 0 3px; }
 .source-card p:last-child { margin-bottom: 0; color: var(--muted); font-size: .84rem; }
-.source-note { margin-top: 18px; color: var(--muted); font-size: .77rem; }
+.source-note { display: grid; gap: 7px; margin-top: 18px; padding-top: 14px; color: var(--muted); border-top: 1px solid var(--line); font-size: .77rem; }
+.source-note p { margin: 0; }
+.source-note strong { color: var(--navy); }
 .open-nav { margin-bottom: 16px; color: var(--navy); background: var(--sky); border: 1px solid #bfd4f7; }
 .scrim { display: none; }
 
