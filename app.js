@@ -1,15 +1,29 @@
 /* global QUESTION_BANK */
 
 const state = {
+  subject: new URLSearchParams(window.location.search).get("matiere") === "biologie" ? "biology" : "chemistry",
   audience: "5e",
   selectedId: null,
   selectedAnswer: null,
   visibleQuestions: [],
-  progress: JSON.parse(localStorage.getItem("concours-chimie-progress") || "{}"),
+  progress: JSON.parse(localStorage.getItem("concours-sciences-progress") || "{}"),
 };
 
+const subjects = {
+  chemistry: { label: "Chimie", slug: "chimie", bank: QUESTION_BANK.chemistry },
+  biology: { label: "Biologie", slug: "biologie", bank: QUESTION_BANK.biology },
+};
+
+const legacyProgress = JSON.parse(localStorage.getItem("concours-chimie-progress") || "{}");
+Object.entries(legacyProgress).forEach(([id, value]) => {
+  state.progress[`chemistry-${id}`] ??= value;
+});
+
 const elements = {
+  subjectButtons: [...document.querySelectorAll("[data-subject]")],
   audienceButtons: [...document.querySelectorAll("[data-audience]")],
+  audience5Detail: document.querySelector("#audience-5e-detail"),
+  audience6Detail: document.querySelector("#audience-6e-detail"),
   search: document.querySelector("#search"),
   theme: document.querySelector("#theme-filter"),
   year: document.querySelector("#year-filter"),
@@ -39,25 +53,37 @@ const elements = {
   scrim: document.querySelector("#scrim"),
 };
 
-const allQuestions = QUESTION_BANK.groups.flatMap((group, groupIndex) =>
-  group.questions.map((question) => ({
-    ...question,
-    id: `${question.year}-Q${question.number}`,
-    groupIndex,
-    level: group.level,
-    uaa: group.uaa,
-    theme: group.theme,
-    note: group.note,
-  })),
-);
+function allQuestions() {
+  return subjects[state.subject].bank.groups.flatMap((group, groupIndex) =>
+    group.questions.map((question) => ({
+      ...question,
+      id: `${state.subject}-${question.year}-Q${question.number}`,
+      groupIndex,
+      level: group.level,
+      uaa: group.uaa,
+      theme: group.theme,
+      note: group.note,
+    })),
+  );
+}
 
 function audienceQuestions() {
   const levels = state.audience === "5e" ? ["3e", "4e", "5e"] : ["6e"];
-  return allQuestions.filter((question) => levels.includes(question.level));
+  return allQuestions().filter((question) => levels.includes(question.level));
 }
 
 function saveProgress() {
-  localStorage.setItem("concours-chimie-progress", JSON.stringify(state.progress));
+  localStorage.setItem("concours-sciences-progress", JSON.stringify(state.progress));
+}
+
+function updateAudienceDetails() {
+  const questions = allQuestions();
+  const juniorCount = questions.filter((question) => ["3e", "4e", "5e"].includes(question.level)).length;
+  const seniorCount = questions.filter((question) => question.level === "6e").length;
+  elements.audience5Detail.textContent = `${juniorCount} questions · Acquis et matière des 3e, 4e et 5e années`;
+  elements.audience6Detail.textContent = state.subject === "chemistry"
+    ? `${seniorCount} questions · acide–base et rédox`
+    : `${seniorCount} questions · UAA 8 et UAA 9 de 6e année`;
 }
 
 function populateFilters() {
@@ -136,7 +162,7 @@ function renderList() {
 }
 
 function selectQuestion(id) {
-  const question = allQuestions.find((item) => item.id === id);
+  const question = allQuestions().find((item) => item.id === id);
   if (!question) return;
   state.selectedId = id;
   state.selectedAnswer = null;
@@ -149,7 +175,7 @@ function selectQuestion(id) {
   elements.title.textContent = `Question ${question.number} (${question.year})`;
   elements.themeText.textContent = question.theme;
   elements.locatorNumber.textContent = `Q${question.number}`;
-  elements.officialTitle.textContent = `Source de chimie ${question.year}`;
+  elements.officialTitle.textContent = `Source de ${subjects[state.subject].slug} ${question.year}`;
   elements.openAnnual.href = question.url;
 
   if (question.directUrl) {
@@ -191,7 +217,7 @@ function chooseAnswer(answer) {
 }
 
 function checkAnswer() {
-  const question = allQuestions.find((item) => item.id === state.selectedId);
+  const question = allQuestions().find((item) => item.id === state.selectedId);
   if (!question || !state.selectedAnswer) return;
   state.progress[question.id] = { answer: state.selectedAnswer, checkedAt: new Date().toISOString() };
   saveProgress();
@@ -242,16 +268,32 @@ function closeNavigator() {
   elements.scrim.classList.remove("is-visible");
 }
 
-elements.audienceButtons.forEach((button) => button.addEventListener("click", () => {
-  state.audience = button.dataset.audience;
-  elements.audienceButtons.forEach((item) => item.classList.toggle("is-active", item === button));
+function resetView() {
+  state.selectedId = null;
   elements.search.value = "";
   elements.theme.value = "all";
   elements.year.value = "all";
+  elements.archive.href = subjects[state.subject].bank.archive;
+  updateAudienceDetails();
   populateFilters();
   filterQuestions();
   updateProgress();
   selectQuestion(state.visibleQuestions[0]?.id);
+}
+
+elements.subjectButtons.forEach((button) => button.addEventListener("click", () => {
+  state.subject = button.dataset.subject;
+  const url = new URL(window.location.href);
+  url.searchParams.set("matiere", subjects[state.subject].slug);
+  window.history.replaceState({}, "", url);
+  elements.subjectButtons.forEach((item) => item.classList.toggle("is-active", item === button));
+  resetView();
+}));
+
+elements.audienceButtons.forEach((button) => button.addEventListener("click", () => {
+  state.audience = button.dataset.audience;
+  elements.audienceButtons.forEach((item) => item.classList.toggle("is-active", item === button));
+  resetView();
 }));
 
 elements.search.addEventListener("input", filterQuestions);
@@ -272,7 +314,9 @@ elements.resetProgress.addEventListener("click", () => {
   renderList();
 });
 
-elements.archive.href = QUESTION_BANK.archive;
+elements.subjectButtons.forEach((button) => button.classList.toggle("is-active", button.dataset.subject === state.subject));
+elements.archive.href = subjects[state.subject].bank.archive;
+updateAudienceDetails();
 populateFilters();
 filterQuestions();
 updateProgress();

@@ -4,8 +4,8 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="theme-color" content="#173b7a">
-    <meta name="description" content="Parcours guidé des questions de chimie publiées par l’ARES pour le concours d’entrée en médecine et dentisterie.">
-    <title>Chimie · Objectif médecine</title>
+    <meta name="description" content="Parcours guidé des questions de chimie et de biologie publiées pour le concours d’entrée en médecine et dentisterie.">
+    <title>Sciences · Objectif médecine et dentisterie</title>
     <link rel="stylesheet" href="styles.css">
   </head>
   <body>
@@ -13,23 +13,29 @@
 
     <header class="hero">
       <div class="hero__inner">
-        <p class="eyebrow">Chimie · Sciences générales</p>
-        <h1>Objectif médecine</h1>
+        <p class="eyebrow">Chimie et biologie · Sciences générales</p>
+        <h1>Objectif médecine et dentisterie</h1>
         <p class="hero__lead">Un parcours guidé dans les questions officielles, organisé selon ce que tu étudies pendant tes études secondaires.</p>
       </div>
     </header>
 
     <main class="app-shell">
       <section class="dashboard" aria-label="Choix du parcours">
-        <div class="audience-switch" role="group" aria-label="Année d’étude">
-          <button class="audience-button is-active" type="button" data-audience="5e">
-            <span>Je suis en 5e année</span>
-            <small>169 questions · Acquis et matière des 3e, 4e et 5e années</small>
-          </button>
-          <button class="audience-button" type="button" data-audience="6e">
-            <span>Je suis en 6e année</span>
-            <small>31 questions · acide–base et rédox</small>
-          </button>
+        <div class="path-switches">
+          <div class="subject-switch" role="group" aria-label="Discipline">
+            <button class="subject-button is-active" type="button" data-subject="chemistry">Chimie</button>
+            <button class="subject-button" type="button" data-subject="biology">Biologie</button>
+          </div>
+          <div class="audience-switch" role="group" aria-label="Année d’étude">
+            <button class="audience-button is-active" type="button" data-audience="5e">
+              <span>Je suis en 5e année</span>
+              <small id="audience-5e-detail"></small>
+            </button>
+            <button class="audience-button" type="button" data-audience="6e">
+              <span>Je suis en 6e année</span>
+              <small id="audience-6e-detail"></small>
+            </button>
+          </div>
         </div>
 
         <div class="progress-card">
@@ -116,7 +122,7 @@
           <section class="source-card" aria-labelledby="official-title">
             <div>
               <p class="eyebrow">Source du concours</p>
-              <h3 id="official-title">Questionnaire de chimie</h3>
+              <h3 id="official-title">Questionnaire officiel</h3>
               <p>Besoin de consulter les autres questions de la même année ?</p>
             </div>
             <a id="open-annual" class="secondary-button" href="#" target="_blank" rel="noopener">Voir la source annuelle complète ↗</a>
@@ -130,8 +136,9 @@
             </p>
             <p>
               <strong>Origine du corpus :</strong>
-              200 questions de chimie issues des épreuves d’entrée en médecine et dentisterie
-              de 2017 à 2025, mises à disposition dans les archives de l’ARES.
+              200 questions de chimie (2017–2025) et 170 questions de biologie (2018–2025)
+              issues des épreuves d’entrée en médecine et dentisterie et mises à disposition
+              dans les archives publiques de l’ARES.
               <a id="archive-link" href="#" target="_blank" rel="noopener">Consulter les archives de l’ARES ↗</a>
             </p>
             <p>
